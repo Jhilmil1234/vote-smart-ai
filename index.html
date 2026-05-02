@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VoteSmart AI — Your Voting Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sora: ['Sora', 'sans-serif'],
+          dm: ['DM Sans', 'sans-serif'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  /* ===================== CSS VARIABLES ===================== */
+  :root {
+    --ink: #0d1117;
+    --ink-soft: #1e2535;
+    --surface: #f5f4ef;
+    --surface-alt: #eceae2;
+    --cream: #faf9f5;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: #dbeafe;
+    --gold: #d97706;
+    --gold-light: #fef3c7;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --border: rgba(13,17,23,0.10);
+    --shadow-sm: 0 2px 8px rgba(13,17,23,0.07);
+    --shadow-md: 0 8px 32px rgba(13,17,23,0.10);
+    --shadow-lg: 0 20px 60px rgba(13,17,23,0.13);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  /* ===================== RESET & BASE ===================== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ===================== NOISE TEXTURE ===================== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===================== TYPOGRAPHY ===================== */
+  h1, h2, h3 { font-family: 'Sora', sans-serif; }
+
+  /* ===================== NAV ===================== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(245,244,239,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+  }
+  .logo {
+    font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem;
+    letter-spacing: -0.02em; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo-badge {
+    background: var(--accent); color: white;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
+    padding: 2px 7px; border-radius: 100px; text-transform: uppercase;
+  }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-link {
+    font-size: 0.875rem; font-weight: 500; color: var(--ink-soft);
+    padding: 7px 14px; border-radius: 100px; cursor: pointer;
+    transition: all 0.2s; text-decoration: none; border: none; background: none;
+  }
+  .nav-link:hover { background: var(--surface-alt); color: var(--ink); }
+  .nav-cta {
+    background: var(--ink); color: white;
+    font-family: 'Sora', sans-serif; font-size: 0.85rem; font-weight: 600;
+    padding: 8px 18px; border-radius: 100px; border: none; cursor: pointer;
+    transition: all 0.2s; letter-spacing: -0.01em;
+  }
+  .nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+
+  /* ===================== HERO ===================== */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--gold-light); border: 1px solid rgba(217,119,6,0.2);
+    color: var(--gold); font-size: 0.8rem; font-weight: 600;
+    padding: 6px 14px; border-radius: 100px; letter-spacing: 0.03em;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-title {
+    font-size: clamp(2.8rem, 7vw, 5.5rem); font-weight: 800;
+    letter-spacing: -0.04em; line-height: 1.05;
+    color: var(--ink); max-width: 800px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .hero-title span { color: var(--accent); }
+  .hero-sub {
+    font-size: 1.15rem; color: #4b5563; max-width: 520px;
+    margin: 22px auto 40px; font-weight: 400;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+  .hero-btns {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--ink); color: white;
+    font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600;
+    padding: 14px 28px; border-radius: 100px; border: none; cursor: pointer;
+    transition: all 0.25s; letter-spacing: -0.01em;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.35); }
+  .btn-secondary {
+    background: white; color: var(--ink);
+    border: 1.5px solid var(--border);
+    font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600;
+    padding: 14px 28px; border-radius: 100px; cursor: pointer;
+    transition: all 0.25s; letter-spacing: -0.01em;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  .hero-stats {
+    display: flex; gap: 40px; justify-content: center; margin-top: 60px;
+    animation: fadeUp 0.7s 0.4s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Sora', sans-serif; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.04em; color: var(--ink); }
+  .stat-label { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+
+  /* Floating deco */
+  .hero-deco {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3; pointer-events: none;
+  }
+  .deco-1 { width: 400px; height: 400px; background: #bfdbfe; top: 10%; left: -100px; }
+  .deco-2 { width: 300px; height: 300px; background: #fde68a; bottom: 10%; right: -80px; }
+
+  /* ===================== SECTION WRAPPER ===================== */
+  .section { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 800;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 10px;
+  }
+  .section-sub { font-size: 1.05rem; color: #4b5563; max-width: 480px; }
+
+  /* ===================== DIVIDER ===================== */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* ===================== CHAT SECTION ===================== */
+  #chat-section { background: white; border-radius: var(--radius); margin: 0 24px 60px; box-shadow: var(--shadow-lg); overflow: hidden; }
+  .chat-header {
+    padding: 24px 28px; background: var(--ink);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;
+  }
+  .chat-header-left { display: flex; align-items: center; gap: 12px; }
+  .ai-avatar {
+    width: 44px; height: 44px; background: var(--accent);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .ai-name { font-family: 'Sora', sans-serif; font-weight: 700; color: white; font-size: 1rem; }
+  .ai-status { font-size: 0.75rem; color: #9ca3af; display: flex; align-items: center; gap: 5px; }
+  .status-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+
+  .eli5-toggle {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.08); border-radius: 100px;
+    padding: 8px 14px;
+  }
+  .eli5-label { font-size: 0.8rem; color: #d1d5db; font-weight: 500; }
+  .toggle-switch {
+    position: relative; width: 40px; height: 22px; cursor: pointer;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute; inset: 0;
+    background: #374151; border-radius: 100px;
+    transition: background 0.3s;
+  }
+  .toggle-track::after {
+    content: ''; position: absolute;
+    width: 16px; height: 16px; background: white;
+    border-radius: 50%; top: 3px; left: 3px;
+    transition: transform 0.3s;
+  }
+  input:checked + .toggle-track { background: var(--accent); }
+  input:checked + .toggle-track::after { transform: translateX(18px); }
+
+  .chat-messages {
+    height: 380px; overflow-y: auto;
+    padding: 24px 28px;
+    display: flex; flex-direction: column; gap: 16px;
+    background: #f9fafb;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+
+  .msg { display: flex; gap: 10px; animation: msgIn 0.35s ease both; max-width: 85%; }
+  .msg.user { flex-direction: row-reverse; align-self: flex-end; }
+  .msg-avatar {
+    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    margin-top: 2px;
+  }
+  .msg.ai .msg-avatar { background: var(--accent-light); }
+  .msg.user .msg-avatar { background: var(--ink); }
+  .msg-bubble {
+    padding: 12px 16px; border-radius: 16px;
+    font-size: 0.9rem; line-height: 1.6;
+  }
+  .msg.ai .msg-bubble {
+    background: white; border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    box-shadow: var(--shadow-sm);
+    color: var(--ink);
+  }
+  .msg.user .msg-bubble {
+    background: var(--ink); color: white;
+    border-top-right-radius: 4px;
+  }
+  .msg-bubble ul { padding-left: 18px; margin-top: 6px; }
+  .msg-bubble li { margin-bottom: 4px; }
+  .msg-bubble strong { font-weight: 600; }
+
+  .thinking {
+    display: flex; align-items: center; gap: 5px;
+    padding: 12px 16px; background: white; border: 1px solid var(--border);
+    border-radius: 16px; border-top-left-radius: 4px; width: fit-content;
+  }
+  .thinking span {
+    width: 7px; height: 7px; background: #9ca3af;
+    border-radius: 50%; animation: bounce 1.2s infinite;
+  }
+  .thinking span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking span:nth-child(3) { animation-delay: 0.4s; }
+
+  .quick-prompts {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 12px 28px; border-top: 1px solid #f3f4f6;
+    background: #f9fafb;
+  }
+  .quick-btn {
+    font-size: 0.78rem; font-weight: 500; color: #374151;
+    background: white; border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 100px; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+  .chat-input-row {
+    display: flex; gap: 10px; padding: 16px 28px; background: white;
+    border-top: 1px solid var(--border); align-items: center;
+  }
+  .chat-input {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 100px;
+    padding: 12px 20px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    outline: none; transition: border-color 0.2s; background: #f9fafb; color: var(--ink);
+  }
+  .chat-input:focus { border-color: var(--accent); background: white; }
+  .chat-send {
+    width: 44px; height: 44px; background: var(--ink); color: white;
+    border: none; border-radius: 50%; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .chat-send:hover { background: var(--accent); transform: scale(1.05); }
+  .chat-send svg { width: 18px; height: 18px; }
+
+  /* ===================== API KEY SECTION ===================== */
+  .api-notice {
+    background: var(--accent-light); border: 1px solid rgba(37,99,235,0.15);
+    border-radius: var(--radius-sm); padding: 14px 20px;
+    margin: 0 28px 0; display: flex; align-items: center; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .api-notice-text { font-size: 0.82rem; color: #1e40af; flex: 1; min-width: 180px; }
+  .api-key-input {
+    flex: 1; min-width: 180px; border: 1.5px solid rgba(37,99,235,0.3); border-radius: 8px;
+    padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+    outline: none; background: white; color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .api-key-input:focus { border-color: var(--accent); }
+  .api-key-save {
+    background: var(--accent); color: white;
+    font-size: 0.82rem; font-weight: 600; padding: 7px 14px;
+    border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .api-key-save:hover { background: var(--accent-hover); }
+  .api-notice-divider { height: 1px; background: rgba(37,99,235,0.12); margin: 0 28px; }
+
+  /* ===================== GUIDE SECTION ===================== */
+  #guide-section { background: var(--cream); }
+  .guide-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+  .guide-tab {
+    font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 600;
+    padding: 12px 22px; border-radius: 100px; cursor: pointer;
+    transition: all 0.25s; letter-spacing: -0.01em;
+    border: 2px solid var(--border); background: white; color: var(--ink-soft);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .guide-tab.active { background: var(--ink); color: white; border-color: var(--ink); }
+  .guide-tab:hover:not(.active) { border-color: var(--ink); }
+
+  .guide-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
+  .step-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 18px 22px;
+    display: flex; align-items: flex-start; gap: 16px;
+    box-shadow: var(--shadow-sm);
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .step-card.visible { opacity: 1; transform: translateY(0); }
+  .step-icon {
+    width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    background: var(--surface);
+  }
+  .step-num {
+    font-family: 'Sora', sans-serif; font-size: 0.7rem; font-weight: 800;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .step-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem; color: var(--ink); margin-bottom: 4px; }
+  .step-desc { font-size: 0.875rem; color: #4b5563; }
+
+  /* ===================== QUIZ SECTION ===================== */
+  #quiz-section { }
+  .quiz-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 36px;
+    box-shadow: var(--shadow-md); max-width: 680px;
+  }
+  .quiz-progress {
+    display: flex; gap: 6px; margin-bottom: 28px;
+  }
+  .progress-dot {
+    height: 4px; flex: 1; border-radius: 4px;
+    background: var(--surface-alt); transition: background 0.3s;
+  }
+  .progress-dot.done { background: var(--accent); }
+  .progress-dot.active { background: var(--ink); }
+
+  .quiz-q {
+    font-family: 'Sora', sans-serif; font-size: 1.15rem; font-weight: 700;
+    color: var(--ink); margin-bottom: 20px; line-height: 1.4;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    padding: 14px 18px; border: 2px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--ink);
+    transition: all 0.2s; display: flex; align-items: center; gap: 12px;
+    background: white;
+  }
+  .quiz-option:hover:not(.disabled) { border-color: var(--accent); background: var(--accent-light); }
+  .quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); }
+  .quiz-option.disabled { cursor: default; }
+  .option-circle {
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+  }
+  .quiz-feedback {
+    margin-top: 16px; padding: 12px 16px; border-radius: var(--radius-sm);
+    font-size: 0.875rem; font-weight: 500; display: none;
+  }
+  .quiz-feedback.show { display: block; animation: fadeUp 0.3s ease; }
+  .quiz-feedback.good { background: var(--green-light); color: var(--green); }
+  .quiz-feedback.bad { background: var(--red-light); color: var(--red); }
+
+  .quiz-next {
+    margin-top: 20px; font-family: 'Sora', sans-serif; font-size: 0.875rem; font-weight: 600;
+    padding: 11px 22px; border-radius: 100px; border: none; cursor: pointer;
+    background: var(--ink); color: white; transition: all 0.2s;
+    display: none;
+  }
+  .quiz-next.show { display: inline-flex; align-items: center; gap: 6px; }
+  .quiz-next:hover { background: var(--accent); transform: translateY(-1px); }
+
+  .quiz-result {
+    text-align: center; padding: 40px 20px;
+  }
+  .quiz-result-icon { font-size: 4rem; margin-bottom: 16px; }
+  .quiz-result-score {
+    font-family: 'Sora', sans-serif; font-size: 3rem; font-weight: 800;
+    letter-spacing: -0.04em; color: var(--ink);
+  }
+  .quiz-result-msg { font-size: 1.05rem; color: #4b5563; margin: 12px 0 28px; }
+  .quiz-restart {
+    font-family: 'Sora', sans-serif; font-size: 0.875rem; font-weight: 600;
+    padding: 11px 22px; border-radius: 100px; border: 2px solid var(--ink);
+    cursor: pointer; background: transparent; color: var(--ink); transition: all 0.2s;
+  }
+  .quiz-restart:hover { background: var(--ink); color: white; }
+
+  /* ===================== FOOTER ===================== */
+  footer {
+    background: var(--ink); color: #9ca3af;
+    padding: 40px 24px; text-align: center;
+  }
+  .footer-logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.1rem; color: white; margin-bottom: 8px; }
+  .footer-tagline { font-size: 0.85rem; }
+
+  /* ===================== ANIMATIONS ===================== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ===================== RESPONSIVE ===================== */
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .hero-stats { gap: 24px; }
+    .chat-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .quiz-card { padding: 24px 20px; }
+    .api-notice { flex-direction: column; }
+    .chat-messages { height: 300px; }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.in-view { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- ======================== NAV ======================== -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">
+      🗳️ VoteSmart
+      <span class="logo-badge">AI</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="scrollTo('chat-section')">AI Chat</button>
+      <button class="nav-link" onclick="scrollTo('guide-section')">Voting Guide</button>
+      <button class="nav-link" onclick="scrollTo('quiz-section')">Quiz</button>
+    </div>
+    <button class="nav-cta" onclick="scrollTo('chat-section')">Start Learning →</button>
+  </div>
+</nav>
+
+<!-- ======================== HERO ======================== -->
+<section class="hero" id="hero">
+  <div class="hero-deco deco-1"></div>
+  <div class="hero-deco deco-2"></div>
+  <div class="hero-eyebrow">
+    ✨ Your AI-Powered Voting Companion
+  </div>
+  <h1 class="hero-title">
+    Vote with<br /><span>confidence.</span>
+  </h1>
+  <p class="hero-sub">
+    First time voting? We've got you. Get clear, friendly answers to all your election questions — powered by AI.
+  </p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="scrollTo('chat-section')">
+      💬 Ask the AI Assistant
+    </button>
+    <button class="btn-secondary" onclick="scrollTo('guide-section')">
+      📋 View Voting Guide
+    </button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Free to Use</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5+</div>
+      <div class="stat-label">Topics Covered</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2 min</div>
+      <div class="stat-label">To Get Started</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== CHAT SECTION ======================== -->
+<div style="max-width:1100px;margin:0 auto;padding:0 24px;">
+  <div id="chat-section" class="reveal" style="border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(13,17,23,0.13);">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="ai-avatar">🤖</div>
+        <div>
+          <div class="ai-name">Vota — Election Assistant</div>
+          <div class="ai-status">
+            <span class="status-dot"></span>
+            Always ready to help
+          </div>
+        </div>
+      </div>
+      <div class="eli5-toggle">
+        <span class="eli5-label">🧒 Explain Like I'm 10</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="eli5Toggle" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- API Key Notice -->
+    <div style="padding:12px 0 0;">
+      <div class="api-notice">
+        <div class="api-notice-text">
+          🔑 <strong>Optional:</strong> Add your Anthropic API key for live AI responses. Without it, Vota uses smart built-in answers.
+        </div>
+        <input class="api-key-input" id="apiKeyInput" type="password" placeholder="sk-ant-..." />
+        <button class="api-key-save" onclick="saveApiKey()">Save Key</button>
+      </div>
+      <div class="api-notice-divider"></div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+      <!-- Greeting injected by JS -->
+    </div>
+
+    <!-- Quick Prompts -->
+    <div class="quick-prompts">
+      <span style="font-size:0.75rem;color:#9ca3af;font-weight:600;align-self:center;white-space:nowrap;">Try asking:</span>
+      <button class="quick-btn" onclick="sendQuick('How do I register to vote?')">How do I register?</button>
+      <button class="quick-btn" onclick="sendQuick('What ID do I need to vote?')">What ID do I need?</button>
+      <button class="quick-btn" onclick="sendQuick('What happens on Election Day?')">Election Day steps</button>
+      <button class="quick-btn" onclick="sendQuick('Can I vote by mail?')">Vote by mail?</button>
+      <button class="quick-btn" onclick="sendQuick('What is a ballot?')">What is a ballot?</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" type="text" placeholder="Ask anything about voting..." onkeydown="if(event.key==='Enter') sendMessage()" />
+      <button class="chat-send" onclick="sendMessage()" title="Send">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== GUIDE SECTION ======================== -->
+<section id="guide-section" style="max-width:1100px;margin:60px auto 0;padding:80px 24px;">
+  <div class="reveal">
+    <div class="section-label">Step-by-Step Guide</div>
+    <h2 class="section-title">Your Voting Roadmap</h2>
+    <p class="section-sub">Everything you need to know, broken down into simple steps. No jargon, no confusion.</p>
+    <div class="guide-btns">
+      <button class="guide-tab active" id="tab-register" onclick="showGuide('register')">
+        📝 How to Register
+      </button>
+      <button class="guide-tab" id="tab-votingday" onclick="showGuide('votingday')">
+        🗳️ Voting Day Steps
+      </button>
+    </div>
+    <div class="guide-cards" id="guideCards"></div>
+  </div>
+</section>
+
+<!-- ======================== QUIZ SECTION ======================== -->
+<section id="quiz-section" style="max-width:1100px;margin:0 auto;padding:80px 24px;">
+  <div class="reveal" style="display:flex;gap:60px;flex-wrap:wrap;align-items:flex-start;">
+    <div style="flex:1;min-width:240px;">
+      <div class="section-label">Test Your Knowledge</div>
+      <h2 class="section-title">Ready to prove it?</h2>
+      <p class="section-sub" style="margin-bottom:24px;">Take this quick 5-question quiz to see if you're ready to head to the polls!</p>
+      <div style="background:var(--gold-light);border:1px solid rgba(217,119,6,0.2);border-radius:14px;padding:16px 18px;">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:0.05em;">🏆 SCORING</div>
+        <div style="font-size:0.85rem;color:#92400e;line-height:1.7;">
+          5/5 — Voting Expert!<br/>
+          3–4 — Almost Ready!<br/>
+          0–2 — Keep Learning!
+        </div>
+      </div>
+    </div>
+    <div class="quiz-card" style="flex:2;min-width:280px;" id="quizCard">
+      <!-- Quiz rendered by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ======================== FOOTER ======================== -->
+<footer>
+  <div class="footer-logo">🗳️ VoteSmart AI</div>
+  <div class="footer-tagline">Empowering first-time voters with clear, simple guidance.</div>
+  <div style="margin-top:16px;font-size:0.75rem;opacity:0.5;">Built with ❤️ for democratic participation · Not affiliated with any political party</div>
+</footer>
+
+
+<!-- ======================== JAVASCRIPT ======================== -->
+<script>
+// ===================== STATE =====================
+let apiKey = '';
+let eli5Mode = false;
+let conversationHistory = [];
+let quizCurrent = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+// ===================== UTILITY =====================
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (val) {
+    apiKey = val;
+    const notice = document.querySelector('.api-notice');
+    notice.style.background = '#d1fae5';
+    notice.querySelector('.api-notice-text').innerHTML = '✅ <strong>API key saved!</strong> Vota is now powered by live AI responses.';
+  }
+}
+
+document.getElementById('eli5Toggle').addEventListener('change', function() {
+  eli5Mode = this.checked;
+});
+
+// ===================== CHAT =====================
+const SYSTEM_PROMPT = `You are Vota, a friendly election assistant for first-time voters. 
+Explain election processes in simple step-by-step bullet points using very easy language. 
+Avoid jargon. Keep answers concise (max 150 words). Use emoji sparingly for friendliness. 
+Format answers with short bullet points or numbered steps when appropriate.`;
+
+const ELI5_SUFFIX = ` Explain it like you're talking to a 10-year-old — use very simple words, short sentences, and a warm, encouraging tone. Use fun analogies if helpful.`;
+
+// Predefined fallback answers
+const FALLBACKS = {
+  register: {
+    keywords: ['register', 'registration', 'sign up', 'enroll'],
+    answer: `Here's how to register to vote:\n\n📋 **Step 1 — Check Eligibility**\nYou must be a citizen, at least 18 years old, and a resident of your state.\n\n🖊️ **Step 2 — Fill Out the Form**\nGet your state's voter registration form online or at your local DMV or library.\n\n📬 **Step 3 — Submit It**\nMail it in or submit online before your state's deadline (usually 15–30 days before election).\n\n✅ **Step 4 — Confirm**\nYou'll get a confirmation card in the mail. Keep it safe!`
+  },
+  id: {
+    keywords: ['id', 'identification', 'document', 'need to bring', 'bring'],
+    answer: `What ID you need to vote:\n\n🪪 **Most states accept:**\n• Driver's license or state ID\n• Passport\n• Military ID\n\n📄 **Some states also accept:**\n• Utility bill with your name & address\n• Bank statement\n• Student ID\n\n💡 **Tip:** Check your specific state's rules at vote.gov — requirements vary by state.\n\nIf you forget your ID, you may be able to cast a **provisional ballot**.`
+  },
+  electionday: {
+    keywords: ['election day', 'voting day', 'polling', 'poll', 'what happens', 'steps'],
+    answer: `On Election Day, here's what to do:\n\n🏫 **Step 1 — Find Your Polling Place**\nUse vote.gov or your state's website to find your assigned voting location.\n\n⏰ **Step 2 — Check Hours**\nPolls are usually open 6am–8pm. If you're in line before closing, you CAN stay.\n\n🪪 **Step 3 — Bring Your ID**\nBring an accepted photo ID (see state rules).\n\n✅ **Step 4 — Check In**\nA poll worker will verify your registration and give you a ballot.\n\n🗳️ **Step 5 — Vote!**\nFill in your choices privately in the voting booth.\n\n📩 **Step 6 — Submit**\nFeed your ballot into the machine or hand it to a poll worker. Done!`
+  },
+  mail: {
+    keywords: ['mail', 'absentee', 'vote by mail', 'mail-in', 'postal'],
+    answer: `Voting by mail is easy!\n\n📬 **Step 1 — Request a Ballot**\nApply for an absentee/mail-in ballot through your state's election website. Do this early!\n\n📦 **Step 2 — Receive Your Ballot**\nIt'll arrive in the mail before Election Day.\n\n🖊️ **Step 3 — Fill It Out**\nFollow the instructions carefully. Sign where required!\n\n📮 **Step 4 — Return It**\nMail it back or drop it at an official drop box before the deadline.\n\n✅ **Step 5 — Track It**\nMany states let you track your ballot online to confirm it was received.`
+  },
+  ballot: {
+    keywords: ['ballot', 'what is a ballot', 'voting paper'],
+    answer: `Great question!\n\n🗳️ **A ballot is simply your voting paper** — it's how you officially record your choices in an election.\n\n📋 **It lists:**\n• Candidates running for office (President, Governor, etc.)\n• Local races (Mayor, School Board, etc.)\n• Ballot measures (yes/no questions on laws)\n\n🔒 **Your ballot is secret** — nobody can see who you voted for.\n\nYou can vote on paper (hand-marked) or on an electronic machine — both are official!`
+  },
+  default: {
+    keywords: [],
+    answer: `Thanks for your question! 🙌\n\nHere are some things I can help you with:\n\n• 📝 **How to register to vote**\n• 🪪 **What ID you need**\n• 🗳️ **What happens on Election Day**\n• 📬 **How to vote by mail**\n• 📋 **Understanding your ballot**\n\nJust ask me anything and I'll break it down in simple steps!`
+  }
+};
+
+const ELI5_OVERRIDES = {
+  register: `Registering to vote is like signing up for a team! 🏅\n\n1️⃣ **Are you allowed?** You need to be 18, a citizen, and live in your state.\n2️⃣ **Fill out a form** — like a permission slip — online or at your library!\n3️⃣ **Send it in** before the deadline (like turning in homework on time!)\n4️⃣ **Get a confirmation card** in the mail — that's your proof you're on the team! 🎉`,
+  id: `Bringing ID to vote is like showing your library card to check out books! 📚\n\n🪪 Bring something that shows **who you are** — like your driver's license or student ID.\n\nIf you're not sure, ask a grown-up or check your state's website. Easy peasy!`,
+  electionday: `Election Day is like going on a special mission! 🎯\n\n1️⃣ Find your **voting place** (like your polling school)\n2️⃣ Bring your **ID**\n3️⃣ A helper checks you in\n4️⃣ You go in a **private booth** — nobody can see your choices!\n5️⃣ Mark your ballot (your vote paper) and put it in a special box 📦\n\nYou did it! 🌟`,
+  mail: `Voting by mail is like sending a letter with your choices! ✉️\n\n1️⃣ Ask for a special ballot to be mailed to you\n2️⃣ It arrives in your mailbox like a birthday card!\n3️⃣ Fill it out carefully (like a test, but you already know the answers!)\n4️⃣ Mail it back or drop it in an official box before the deadline\n5️⃣ Your vote gets counted! 🎉`,
+  ballot: `A ballot is like your **vote sheet**! 📝\n\nIt's the paper (or screen) where you pick the people and ideas you want to support.\n\nIt's totally **secret** — nobody knows what you picked. It's like whispering your answer to a trusted friend! 🤫`,
+  default: `Hi there! I'm Vota, your voting helper! 🤖\n\nI can explain:\n• 📝 How to sign up to vote (register!)\n• 🪪 What to bring with you\n• 🗳️ What happens when you go vote\n• 📬 How to vote from home (mail!)\n\nJust ask me anything — I'll make it super simple! 😊`
+};
+
+function getFallbackAnswer(question) {
+  const q = question.toLowerCase();
+  for (const [key, data] of Object.entries(FALLBACKS)) {
+    if (key === 'default') continue;
+    if (data.keywords.some(k => q.includes(k))) {
+      return eli5Mode ? (ELI5_OVERRIDES[key] || data.answer) : data.answer;
+    }
+  }
+  return eli5Mode ? ELI5_OVERRIDES.default : FALLBACKS.default.answer;
+}
+
+function formatAIText(text) {
+  // Convert **bold** to <strong>
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Convert bullet lines to list items
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) { if (inList) { html += '</ul>'; inList = false; } html += '<br/>'; continue; }
+    if (line.startsWith('•') || line.startsWith('-') || /^\d+[.️⃣)]/.test(line)) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += `<li>${line.replace(/^[•\-\d.️⃣)]+\s*/, '')}</li>`;
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<p style="margin-bottom:4px">${line}</p>`;
+    }
+  }
+  if (inList) html += '</ul>';
+  return html;
+}
+
+function addMessage(role, text, isHTML = false) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const avatar = role === 'ai' ? '🤖' : '👤';
+  const avatarColor = role === 'ai' ? '' : 'style="background:var(--ink);color:white;font-size:0.9rem"';
+  div.innerHTML = `
+    <div class="msg-avatar" ${avatarColor}>${avatar}</div>
+    <div class="msg-bubble">${isHTML ? text : formatAIText(text)}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function addThinking() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'thinkingMsg';
+  div.innerHTML = `
+    <div class="msg-avatar">🤖</div>
+    <div class="thinking"><span></span><span></span><span></span></div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeThinking() {
+  const el = document.getElementById('thinkingMsg');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const question = input.value.trim();
+  if (!question) return;
+  input.value = '';
+  addMessage('user', question);
+  conversationHistory.push({ role: 'user', content: question });
+  addThinking();
+
+  await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
+
+  if (apiKey) {
+    try {
+      const systemPrompt = SYSTEM_PROMPT + (eli5Mode ? ELI5_SUFFIX : '');
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 400,
+          system: systemPrompt,
+          messages: conversationHistory
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || getFallbackAnswer(question);
+      conversationHistory.push({ role: 'assistant', content: reply });
+      removeThinking();
+      addMessage('ai', reply);
+    } catch {
+      removeThinking();
+      const fallback = getFallbackAnswer(question);
+      addMessage('ai', fallback);
+    }
+  } else {
+    removeThinking();
+    const fallback = getFallbackAnswer(question);
+    conversationHistory.push({ role: 'assistant', content: fallback });
+    addMessage('ai', fallback);
+  }
+}
+
+function sendQuick(q) {
+  document.getElementById('chatInput').value = q;
+  sendMessage();
+  scrollTo('chat-section');
+}
+
+// Initial greeting
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    addMessage('ai', `👋 **Hi there! I'm Vota, your election guide!**\n\nI'm here to help you understand everything about voting — step by step, no confusing words.\n\n🗳️ You can ask me:\n• How to register to vote\n• What to bring on Election Day\n• How mail-in voting works\n• What's on your ballot\n\nWhat would you like to know?`);
+  }, 400);
+});
+
+// ===================== GUIDE =====================
+const GUIDE_DATA = {
+  register: [
+    { icon: '🎂', title: 'Check Your Eligibility', desc: 'You must be at least 18 years old on or before Election Day, a U.S. citizen, and a resident of the state where you\'re registering.' },
+    { icon: '💻', title: 'Find Your State\'s Registration Form', desc: 'Visit vote.gov to find your state\'s official voter registration page. Many states offer online registration — it takes just minutes!' },
+    { icon: '🖊️', title: 'Fill Out the Form', desc: 'Provide your full legal name, current address, date of birth, and ID number (driver\'s license or last 4 digits of SSN).' },
+    { icon: '📬', title: 'Submit Before the Deadline', desc: 'Most states require registration 15–30 days before Election Day. Some states allow same-day registration — check yours!' },
+    { icon: '📩', title: 'Get Your Confirmation', desc: 'You\'ll receive a voter registration card by mail. Keep it! You can also check your registration status online anytime.' },
+  ],
+  votingday: [
+    { icon: '🔍', title: 'Find Your Polling Place', desc: 'Use vote.gov or your state election website to find your assigned polling location. Note the address and hours ahead of time.' },
+    { icon: '⏰', title: 'Plan Your Time', desc: 'Polls are typically open 6 AM – 8 PM. If you\'re in line when polls close, you still get to vote — it\'s your legal right!' },
+    { icon: '🪪', title: 'Bring Your ID', desc: 'Bring an accepted photo ID. Requirements vary by state — check your state\'s rules at vote.gov to be sure.' },
+    { icon: '📋', title: 'Check In at the Polling Place', desc: 'Give your name and address to the poll worker. They\'ll look up your registration and hand you your ballot.' },
+    { icon: '🗳️', title: 'Cast Your Vote Privately', desc: 'Step into the voting booth — it\'s completely private. Take your time filling in your choices carefully.' },
+    { icon: '✅', title: 'Submit Your Ballot', desc: 'Feed your completed ballot into the scanner or hand it to the poll worker. You\'ll get an "I Voted" sticker! 🎉' },
+  ]
+};
+
+let currentGuide = 'register';
+
+function showGuide(type) {
+  currentGuide = type;
+  document.getElementById('tab-register').classList.toggle('active', type === 'register');
+  document.getElementById('tab-votingday').classList.toggle('active', type === 'votingday');
+  renderGuide();
+}
+
+function renderGuide() {
+  const container = document.getElementById('guideCards');
+  const steps = GUIDE_DATA[currentGuide];
+  container.innerHTML = '';
+  steps.forEach((step, i) => {
+    const card = document.createElement('div');
+    card.className = 'step-card';
+    card.innerHTML = `
+      <div class="step-icon">${step.icon}</div>
+      <div>
+        <div class="step-num">Step ${i + 1}</div>
+        <div class="step-title">${step.title}</div>
+        <div class="step-desc">${step.desc}</div>
+      </div>
+    `;
+    container.appendChild(card);
+    setTimeout(() => card.classList.add('visible'), i * 120);
+  });
+}
+
+// Initial guide render
+window.addEventListener('DOMContentLoaded', () => renderGuide());
+
+// ===================== QUIZ =====================
+const QUIZ_QUESTIONS = [
+  {
+    q: 'What is the minimum age to vote in a U.S. federal election?',
+    options: ['16', '17', '18', '21'],
+    correct: 2,
+    explanation: '✅ Correct! You must be 18 years old to vote in U.S. federal elections.'
+  },
+  {
+    q: 'What document is used to cast your vote in an election?',
+    options: ['A receipt', 'A ballot', 'A tax form', 'A passport'],
+    correct: 1,
+    explanation: '✅ Right! A ballot is the official document you use to record your voting choices.'
+  },
+  {
+    q: 'Which of the following is generally NOT required to register to vote?',
+    options: ['Being a U.S. citizen', 'Proof of income', 'State residency', 'Being 18 years old'],
+    correct: 1,
+    explanation: '✅ Correct! Your income is never a factor in voter eligibility.'
+  },
+  {
+    q: 'What should you do if you\'re in line when the polls close?',
+    options: ['Leave and try tomorrow', 'Wait — you can still vote', 'Come back at the next election', 'Ask for a mail-in ballot'],
+    correct: 1,
+    explanation: '✅ That\'s right! If you\'re in line before polls close, you have the legal right to stay and vote.'
+  },
+  {
+    q: 'Which of these is a way you can vote?',
+    options: ['Over the phone', 'By mail', 'Via email', 'By text message'],
+    correct: 1,
+    explanation: '✅ Correct! Many states allow voting by mail with an absentee ballot.'
+  }
+];
+
+function renderQuiz() {
+  const card = document.getElementById('quizCard');
+  if (quizCurrent >= QUIZ_QUESTIONS.length) {
+    showResult(card);
+    return;
+  }
+  const q = QUIZ_QUESTIONS[quizCurrent];
+  const letters = ['A', 'B', 'C', 'D'];
+  card.innerHTML = `
+    <div class="quiz-progress">${QUIZ_QUESTIONS.map((_, i) =>
+      `<div class="progress-dot ${i < quizCurrent ? 'done' : i === quizCurrent ? 'active' : ''}"></div>`
+    ).join('')}</div>
+    <div style="font-size:0.75rem;font-weight:700;color:#9ca3af;letter-spacing:0.08em;margin-bottom:10px;">QUESTION ${quizCurrent + 1} OF ${QUIZ_QUESTIONS.length}</div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">
+      ${q.options.map((opt, i) => `
+        <div class="quiz-option" id="opt-${i}" onclick="selectAnswer(${i})">
+          <div class="option-circle">${letters[i]}</div>
+          <span>${opt}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+    <button class="quiz-next" id="quizNext" onclick="nextQuestion()">
+      ${quizCurrent < QUIZ_QUESTIONS.length - 1 ? 'Next Question →' : 'See My Score 🎉'}
+    </button>
+  `;
+  quizAnswered = false;
+}
+
+function selectAnswer(idx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUIZ_QUESTIONS[quizCurrent];
+  const isCorrect = idx === q.correct;
+  if (isCorrect) quizScore++;
+
+  document.querySelectorAll('.quiz-option').forEach((el, i) => {
+    el.classList.add('disabled');
+    if (i === q.correct) el.classList.add('correct');
+    else if (i === idx && !isCorrect) el.classList.add('wrong');
+  });
+
+  const feedback = document.getElementById('quizFeedback');
+  feedback.textContent = isCorrect ? q.explanation : `❌ Not quite. ${q.explanation.replace('✅ ', '')}`;
+  feedback.className = `quiz-feedback show ${isCorrect ? 'good' : 'bad'}`;
+
+  const nextBtn = document.getElementById('quizNext');
+  nextBtn.classList.add('show');
+}
+
+function nextQuestion() {
+  quizCurrent++;
+  renderQuiz();
+}
+
+function showResult(card) {
+  const pct = Math.round((quizScore / QUIZ_QUESTIONS.length) * 100);
+  const isReady = quizScore >= 3;
+  card.innerHTML = `
+    <div class="quiz-result">
+      <div class="quiz-result-icon">${isReady ? '🏆' : '📚'}</div>
+      <div class="quiz-result-score">${quizScore}/${QUIZ_QUESTIONS.length}</div>
+      <div style="font-size:0.8rem;color:#9ca3af;margin-top:4px;font-weight:600;">${pct}% Correct</div>
+      <div class="quiz-result-msg">
+        ${isReady
+          ? '<strong style="color:var(--green)">You\'re ready to vote!</strong><br/>You clearly know your stuff. Head to the polls with confidence!'
+          : '<strong style="color:var(--gold)">Keep learning!</strong><br/>Try the voting guide above and come back to sharpen your knowledge.'}
+      </div>
+      <button class="quiz-restart" onclick="restartQuiz()">↩ Try Again</button>
+      ${!isReady ? `<button class="btn-primary" style="margin-left:12px;" onclick="scrollTo('guide-section')">📋 Review the Guide</button>` : ''}
+    </div>
+  `;
+}
+
+function restartQuiz() {
+  quizCurrent = 0;
+  quizScore = 0;
+  quizAnswered = false;
+  renderQuiz();
+}
+
+window.addEventListener('DOMContentLoaded', () => renderQuiz());
+
+// ===================== SCROLL REVEAL =====================
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in-view');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
